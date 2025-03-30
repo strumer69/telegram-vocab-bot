@@ -88,7 +88,21 @@ async def check_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     context.user_data.pop('current_word', None)
 
 # Main Application Setup
-app = ApplicationBuilder().token("8056434570:AAGzh-2G1nVQkTwcqo_ILAo_gbPMgQI3jic").build()
+# app = ApplicationBuilder().token("---").build()
+#***********************
+import os
+from telegram.ext import ApplicationBuilder
+
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Load from environment
+
+if not TOKEN:
+    raise ValueError("Error: TELEGRAM_BOT_TOKEN is not set!")
+
+app = ApplicationBuilder().token(TOKEN).build()
+
+#***********************
+
+
 
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("add", add_word))
