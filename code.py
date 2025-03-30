@@ -149,10 +149,8 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, check_answer))
 
 print("Bot is running...")
 app.run_polling()
+
 while app.run_polling():
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("add", add_word))
-    app.add_handler(CallbackQueryHandler(button_callback))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, check_answer))
+    await update.message.reply_text("Welcome! Choose an option:", reply_markup=reply_markup)
 
     
