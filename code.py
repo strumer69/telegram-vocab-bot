@@ -90,13 +90,11 @@ async def check_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 # Main Application Setup
 # app = ApplicationBuilder().token("---").build()
 #***********************
-import os
-from telegram.ext import ApplicationBuilder
 
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Load from environment
+TOKEN = os.getenv("BOT_TOKEN")  # Load from environment
 
 if not TOKEN:
-    raise ValueError("Error: TELEGRAM_BOT_TOKEN is not set!")
+    raise ValueError("Error: BOT_TOKEN is not set!")
 
 app = ApplicationBuilder().token(TOKEN).build()
 
