@@ -3,12 +3,46 @@ from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandle
 import json
 import os
 import random
+# #*************************
+# import psycopg2 # to connect to postgre_DataBase
+# # Load the database URL from Railway environment variables
+# DATABASE_URL = os.getenv("DATABASE_URL")
+# # Connect to PostgreSQL
+# conn = psycopg2.connect(DATABASE_URL)
+# cur = conn.cursor()
+
+# # Create a table (run this once)
+# cur.execute("""
+#     CREATE TABLE IF NOT EXISTS vocabulary (
+#         id SERIAL PRIMARY KEY,
+#         user_id TEXT,
+#         german_word TEXT,
+#         english_translation TEXT
+#     )
+# """)
+# conn.commit()
+
+# # Function to add words
+# def add_word(user_id, german_word, english_translation):
+#     cur.execute("INSERT INTO vocabulary (user_id, german_word, english_translation) VALUES (%s, %s, %s)",
+#                 (user_id, german_word, english_translation))
+#     conn.commit()
+
+# # Function to get total word count
+# def get_word_count(user_id):
+#     cur.execute("SELECT COUNT(*) FROM vocabulary WHERE user_id = %s", (user_id,))
+#     return cur.fetchone()[0]
+#*************************
 
 # Database (JSON for simplicity)
 DB_FILE = "vocabulary_db.json"
 if not os.path.exists(DB_FILE):
     with open(DB_FILE, 'w') as f:
         json.dump({}, f)
+#***********************
+
+
+#***********************
 
 def load_db():
     with open(DB_FILE, 'r') as f:
