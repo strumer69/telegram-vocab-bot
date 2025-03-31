@@ -4,43 +4,11 @@ import json
 import os
 import random
 
-# #*************************to connect to postgre_DataBase
-# import psycopg2 
-# # Load the database URL from Railway environment variables
-# DATABASE_URL = os.getenv("DATABASE_URL")
-# # Connect to PostgreSQL
-# conn = psycopg2.connect(DATABASE_URL)
-# cur = conn.cursor()
-
-# # Create a table (run this once)
-# cur.execute("""
-#     CREATE TABLE IF NOT EXISTS vocabulary (
-#         id SERIAL PRIMARY KEY,
-#         user_id TEXT,
-#         german_word TEXT,
-#         english_translation TEXT
-#     )
-# """)
-# conn.commit()
-
-# # Function to add words
-# def add_word(user_id, german_word, english_translation):
-#     cur.execute("INSERT INTO vocabulary (user_id, german_word, english_translation) VALUES (%s, %s, %s)",
-#                 (user_id, german_word, english_translation))
-#     conn.commit()
-
-# # Function to get total word count
-# def get_word_count(user_id):
-#     cur.execute("SELECT COUNT(*) FROM vocabulary WHERE user_id = %s", (user_id,))
-#     return cur.fetchone()[0]
-#*************************
-
 # ************************** Database (JSON for simplicity) **************************
 DB_FILE = "vocabulary_db.json"
 if not os.path.exists(DB_FILE):
     with open(DB_FILE, 'w') as f:
         json.dump({}, f)
-
 
 #*********************** load DB **************************
 def load_db():
@@ -52,17 +20,16 @@ def save_db(data):
     with open(DB_FILE, 'w') as f:
         json.dump(data, f, indent=4)
 
-
 # *******************************Start Command with Buttons **************************
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
         [InlineKeyboardButton("Add New", callback_data='add_new')],
         [InlineKeyboardButton("Total Words", callback_data='total_words')],
-        [InlineKeyboardButton("Random Ask", callback_data='random_ask')]
+        [InlineKeyboardButton("Random Ask", callback_data='random_ask')],
+        [InlineKeyboardButton("View All Words", callback_data='view_all_words')]  # New button added
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Welcome! Choose an option:", reply_markup=reply_markup)
-
 
 # ***************************Callback for Buttons ******************************
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -76,7 +43,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         save_db(db)
 
     if query.data == 'add_new':
-        await query.message.reply_text("Send the word in this format : `german - english`", parse_mode='Markdown')
+        await query.message.reply_text("Send the word in this format: `german_word - english_translation`", parse_mode='Markdown')
 
     elif query.data == 'total_words':
         total_words = len(db[user_id])
@@ -89,7 +56,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await query.message.reply_text(f"What's the meaning of '{word}'?")
         else:
             await query.message.reply_text("Your vocabulary list is empty.")
-
+    
+    # New callback for 'view_all_words'
+    elif query.data == 'view_all_words':
+        if db[user_id]:
+            all_words = "\n".join([f"{german_word} - {english_translation}" for german_word, english_translation in db[user_id].items()])
+            await query.message.reply_text(f"Here are all your words:\n{all_words}")
+        else:
+            await query.message.reply_text("You have no words in your vocabulary yet.")
 
 # ************************** Handle Word Entries **************************
 async def add_word(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -108,7 +82,6 @@ async def add_word(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     save_db(db)
     await update.message.reply_text(f"Word '{german_word}' added with translation '{english_translation}'!")
-
 
 # ************************** Handle Random Ask Responses **************************
 async def check_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -138,10 +111,6 @@ if not TOKEN:
 
 app = ApplicationBuilder().token(TOKEN).build()
 
-#***********************
-
-
-
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("add", add_word))
 app.add_handler(CallbackQueryHandler(button_callback))
@@ -149,6 +118,3 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, check_answer))
 
 print("Bot is running...")
 app.run_polling()
-
-
-    
